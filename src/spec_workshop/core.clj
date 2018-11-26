@@ -1,1 +1,0 @@
-(ns spec-workshop.core)
