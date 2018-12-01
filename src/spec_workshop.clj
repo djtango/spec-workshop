@@ -119,6 +119,9 @@
               [(vec (reverse conversion)),
                (/ 1 factor)]))
        (into {})))
+(defn convert [from to]
+  (let [symmetric-conversions (merge conversions reverse-conversions)]
+    (get symmetric-conversions [from to])))
 
 ;; v1
 ;; (s/fdef convert
@@ -146,3 +149,11 @@
 
 
 (defn scale [ingredients factor])
+
+(let [greater-than-one? #(> % 1)
+      less-than-four? (partial > 4)]
+  (s/valid? greater-than-one? 5)
+  (s/valid? less-than-four? 3)
+  (s/valid? 0)
+  )
+
