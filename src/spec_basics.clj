@@ -45,3 +45,41 @@
 (s/explain ::die-roll-2 7)
 ;; => val: 7 fails spec: :spec-basics/die-roll-2 predicate: (and (number? %) (valid? :spec-basics/non-negative-number %) (between-one-and-six? %))
 
+(s/def ::divisible-by-three #(= 0 (mod % 3)))
+(s/def ::chess-piece #{:rook :pawn :bishop :knight :queen :king})
+(s/def ::word-longer-than-five-letters (s/and string?
+                                              #(> (count %) 5)
+                                              (fn single-word? [s]
+                                                (nil? (clojure.string/index-of s " ")))))
+
+(s/def ::capital-letter (set "ABCDEFGHIJKLMNOPQRSTUVWXYZ"))
+(s/def ::numerical-char (set "0123456789"))
+(s/def ::whitespace (set " "))
+
+(s/def ::A ::capital-letter)
+(s/def ::9 ::numerical-char)
+(s/def ::- ::whitespace)
+(s/def ::char-vec (s/conformer (fn [s]
+                                 (if (string? s)
+                                   (vec s)
+                                   ::s/invalid))
+                               #(apply str %)))
+
+(s/def ::postcode (s/or :AA9A-9AA (s/and string?
+                                         ::char-vec
+                                         (s/tuple ::A ::A ::9 ::A ::- ::9 ::A ::A))
+                        :A9A-9AA (s/and string?
+                                        ::char-vec
+                                        (s/tuple ::A ::9 ::A ::- ::9 ::A ::A))
+                        :A9-9AA (s/and string?
+                                       ::char-vec
+                                       (s/tuple ::A ::9 ::- ::9 ::A ::A))
+                        :A99-9AA (s/and string?
+                                        ::char-vec
+                                        (s/tuple ::A ::9 ::9 ::- ::9 ::A ::A))
+                        :AA9-9AA (s/and string?
+                                        ::char-vec
+                                        (s/tuple ::A ::A ::9 ::- ::9 ::A ::A))
+                        :AA99-9AA (s/and string?
+                                         ::char-vec
+                                         (s/tuple ::A ::A ::9 ::9 ::- ::9 ::A ::A))))
