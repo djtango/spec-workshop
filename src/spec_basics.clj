@@ -1,14 +1,14 @@
 (ns spec-basics
   (:require [clojure.spec.alpha :as s]))
 
-(def greater-than-one? #(> % 1))
-(def less-than-six? (partial > 6))
-(s/valid? greater-than-one? 5) ;;=> true
-(s/valid? less-than-six? 3) ;;=> true
+(def at-least-one? #(>= % 1))
+(def at-most-six? (partial >= 6))
+(s/valid? at-least-one? 5) ;;=> true
+(s/valid? at-most-six? 3) ;;=> true
 
 (def between-one-and-six?
-  #(and (greater-than-one? %)
-        (less-than-six? %)))
+  #(and (at-least-one? %)
+        (at-most-six? %)))
 
 (comment
  (s/valid? between-one-and-six? 0) ;; => false
@@ -83,3 +83,4 @@
                         :AA99-9AA (s/and string?
                                          ::char-vec
                                          (s/tuple ::A ::A ::9 ::9 ::- ::9 ::A ::A))))
+

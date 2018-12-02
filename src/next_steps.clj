@@ -69,3 +69,10 @@
 (s/valid? ::reframe-event [:add-todo "write more specs"]) ;;=> true
 (s/conform ::reframe-event [:add-todo "write more specs"]) ;; => {:event-name :add-todo :arg "write more specs"}
 (s/def ::datom (s/tuple number? keyword? any? number? boolean?))
+
+(s/def ::divisible-by-three #(= 0 (mod % 3)))
+(s/def ::divisible-by-five #(= 0 (mod % 5)))
+(s/def ::fizzbuzz
+  (s/or :fizzbuzz (s/and ::divisible-by-five ::divisible-by-three)
+        :fizz ::divisible-by-three
+        :buzz ::divisible-by-five))

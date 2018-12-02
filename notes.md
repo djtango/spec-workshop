@@ -10,16 +10,23 @@ can complain
 Spec is less about types and more about describing data and so specs revolve
 around *predicates*
 
-
+`s/valid?` is used to check if something satisfies a spec predicate.
 ```clj
-(def greater-than-one? #(> % 1))
-(def less-than-six? (partial > 6))
-(s/valid? greater-than-one? 5) ;;=> true
-(s/valid? less-than-six? 3) ;;=> true
+(s/valid? number? 1) ;; => true
+```
+
+### Exercises
+- define a function `at-least-one?` and another `at-most-six?` and use
+  `s/valid?` to test some inputs
+```clj
+(def at-least-one? #(>= % 1))
+(def at-most-six? (partial >= 6))
+(s/valid? at-least-one? 5) ;;=> true
+(s/valid? at-most-six? 3) ;;=> true
 
 (def between-one-and-six?
-  #(and (greater-than-one? %)
-        (less-than-six? %)))
+  #(and (at-least-one? %)
+        (at-most-six? %)))
 
 (s/valid? between-one-and-six? 0) ;; => false
 (s/valid? between-one-and-six? 7) ;; => false
@@ -57,9 +64,9 @@ You can reuse specs:
 Spec provides facilities for composing your specs:
 ### `s/and`
 ```clj
-(s/def ::die-roll (s/and number? ;; this is superfluous
-                         ::non-negative-number ;; so is this...
-                         between-one-and-six?)) ;; examples are hard.
+(s/def ::die-roll (s/and integer?
+                         ::non-negative-number ;; this is superfluous...
+                         between-one-and-six?))
 ```
 
 ###`s/and` vs `and`:
@@ -239,7 +246,37 @@ named positional elements:
 
 
 ###using it in prod:
-`s/fdef`
+`s/fdef` "fn" specs enable us to specify behaviour about our functions.
+`s/fdef` takes three arguments: `:args` `:ret` `:fn`, each of these are
+expected to be spec-like and at least one must be supplied to be a valid fn
+spec
+The `:args` spec is expected to be sequence like and is typically used with `s/cat`:
+```clj
+(s/def ::reverse-args (s/cat :coll coll?)) ;; by convention the name in your `s/cat` matches your function argument names
+```
+
+The `:ret` spec is a regular spec which corresponds to the function return value:
+```clj
+(s/def ::reverse-ret coll?)
+```
+
+The `:fn` spec is passed the *conformed* args and ret specs so you can specify
+relationships between the two:
+```clj
+(s/def ::reverse-fn
+  (fn [{:keys [args ret]}]
+    (let [input-coll (:coll args)]
+      (= input-coll
+         (reverse ret)))))
+```
+Putting them together:
+```clj
+(s/fdef reverse ;; symbol is conventionally used here
+  :args ::reverse-args
+  :ret ::reverse-ret
+  :fn ::reverse-fn)
+```
+
 `defn` `:pre` and `:post`
 
 ;; test check and gen
